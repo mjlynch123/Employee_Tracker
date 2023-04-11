@@ -1,7 +1,6 @@
 const inquirer = require("inquirer");
 const express = require("express");
 const sql = require("mysql");
-const uuid = require("./Helpers/uuid");
 const consoleTable = require("console.table");
 
 const PORT = process.env.PORT || 3001;
@@ -16,6 +15,8 @@ const options = [
   "Add Employee",
   "Update Employee Manager",
   "Update Employee Role",
+  "Search Employees By Manager",
+  "Search Employees By Department",
   "Add Role",
   "View All Roles",
   "View All Departments",
@@ -23,7 +24,7 @@ const options = [
   "Quit",
 ];
 
-// Connect to database
+// * Connect to database
 const db = sql.createConnection(
   {
     host: "localhost",
@@ -36,7 +37,7 @@ const db = sql.createConnection(
   console.log(`Connected to the employees_db database.`)
 );
 
-// Function to show follow-up questions based on user's input
+// * Function to show follow-up questions based on user's input
 function followUpQuestions(answer) {
   // * Switch statement that will determine which follow up question to ask
   switch (answer.ID) {
@@ -168,6 +169,53 @@ function followUpQuestions(answer) {
             init();
         })
         break;
+    case "Search Employees By Manager":
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "manager",
+            message: "Enter manager's name:",
+          },
+        ]).then((answers) => {
+          // * Setting answers to an object of manager
+          const { manager } = answers;
+
+          // * Selecting all items from the employees table that match the given name of manager
+          const query = "SELECT * FROM employees WHERE manager = ?";
+          db.query(query, [manager], (err, results) => {
+            if (err) throw err;
+
+            console.log(`Employees with the manager ${manager}: `);
+            console.table(results);
+            init();
+          })
+        })
+        .catch((error) => console.error(error));
+      break;
+    case "Search Employees By Department":
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "department",
+            message: "Enter Department: ",
+          },
+        ]).then((answers) => {
+          // * Setting answers to an object of department
+          const { department } = answers;
+
+          // * Selecting all items from the employees table that match the given name of department
+          const query = "SELECT * FROM employees WHERE department = ?";
+          db.query(query, [department], (err, results) => {
+            if (err) throw err;
+
+            console.log(`Employees in ${department}: `);
+            console.table(results);
+            init();
+          })
+        })
+      break;
     case "Add Role":
       inquirer
         .prompt([

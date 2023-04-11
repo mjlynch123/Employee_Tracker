@@ -14,6 +14,7 @@ app.use(express.json());
 const options = [
   "View All Employees",
   "Add Employee",
+  "Update Employee Manager",
   "Update Employee Role",
   "Add Role",
   "View All Roles",
@@ -37,7 +38,7 @@ const db = sql.createConnection(
 
 // Function to show follow-up questions based on user's input
 function followUpQuestions(answer) {
-  // *Switch statement that will determine which follow up question to ask
+  // * Switch statement that will determine which follow up question to ask
   switch (answer.ID) {
     case "View All Employees":
         // * Calling the select method so that we can  get everything inside of the employees table
@@ -51,6 +52,7 @@ function followUpQuestions(answer) {
         console.table(results);
         init();
       });
+      break;
     case "Add Employee":
       inquirer
         .prompt([
@@ -106,6 +108,31 @@ function followUpQuestions(answer) {
         })
         .catch((error) => console.error(error));
       break;
+    case "Update Employee Manager":
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "employeeId",
+            message: "Enter employee ID:",
+          },
+          {
+            type: "input",
+            name: "newManager",
+            message: "Enter new manager name: ",
+          },
+        ]).then((answers) => {
+          const { employeeId, newManager } = answers;
+
+          const query = "UPDATE employees SET manager = ? WHERE id = ?";
+          db.query(query, [newManager, employeeId], (err, res) => {
+            if (err) throw err;
+            console.log(res.affectedRows + " employee's managers updated!\n");
+          });
+          init();
+        })
+        .catch((error) => console.error(error));
+        break;
     case "Update Employee Role":
       inquirer
         .prompt([
@@ -191,8 +218,7 @@ function followUpQuestions(answer) {
             });
           });
         });
-      break;
-    ca
+        break;
     case "View All Departments":
       const queryDepartments = "SELECT * FROM departments";
       db.query(queryDepartments, (err, results) => {
@@ -202,6 +228,7 @@ function followUpQuestions(answer) {
         console.log("Employees:");
         console.table(results);
         init();
+        
       });
       break;
     case "Add Department":
@@ -222,10 +249,10 @@ function followUpQuestions(answer) {
             init();
           });
         });
-      break;
+        break;
     case "Quit":
       console.log("Quitting the application...");
-      process.exit(0); // Exit the application with exit code 0
+      process.exit(0);
     default:
       // Handle invalid input
       console.error("Invalid option selected");

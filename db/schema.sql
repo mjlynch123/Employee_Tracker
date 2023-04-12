@@ -20,7 +20,7 @@ CREATE TABLE employees (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   first_name CHAR(50) NOT NULL,
   last_name CHAR(50) NOT NULL,
-  role_id INT,
+  role_id INT DEFAULT 1, -- Specify a default value for role_id column
   department CHAR(30) NOT NULL,
   salary INT NOT NULL,
   manager CHAR(50),

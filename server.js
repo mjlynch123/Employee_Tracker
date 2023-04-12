@@ -38,7 +38,7 @@ const db = sql.createConnection(
 );
 
 // * Function to show follow-up questions based on user's input
-function followUpQuestions(answer) {
+async function followUpQuestions(answer) {
   // * Switch statement that will determine which follow up question to ask
   switch (answer.ID) {
     case "View All Employees":
@@ -55,60 +55,70 @@ function followUpQuestions(answer) {
       });
       break;
     case "Add Employee":
-      inquirer
-        .prompt([
-          {
-            type: "input",
-            name: "first_name",
-            message: "First Name:",
-          },
-          {
-            type: "input",
-            name: "last_name",
-            message: "Last Name:",
-          },
-          {
-            type: "input",
-            name: "department",
-            message: "Department:",
-          },
-          {
-            type: "input",
-            name: "salary",
-            message: "Salary:",
-          },
-          {
-            type: "input",
-            name: "manager",
-            message: "Manager:",
-          },
-        ])
-        .then((answers) => {
-          console.log("Answers:", answers);
-
-          // * Insert the collected employee information into the database
-          // * Set a default value for the role_id column
-          const role_id = 1; // * Set the default role_id value to 1 or any other valid role_id value as per your requirements
-
-          // * Insert the collected employee information into the database with the default role_id value
-          const query =
-            "INSERT INTO employees (first_name, last_name, role_id, department, salary, manager) VALUES (?, ?, ?, ?, ?, ?)";
-          const values = [
-            answers.first_name,
-            answers.last_name,
-            role_id, // * Use the default role_id value
-            answers.department,
-            answers.salary,
-            answers.manager,
-          ];
-          db.query(query, values, (err, res) => {
-            if (err) throw err;
-            console.log(res.affectedRows + " employee inserted!\n");
-            init();
-          });
-        })
-        .catch((error) => console.error(error));
-      break;
+        // Fetch the list of departments from the database
+        const queryAdd = "SELECT department_name FROM departments";
+        db.query(queryAdd, (err, results) => {
+          if (err) throw err;
+      
+          // Extract the department names from the results
+          const departmentOptions = results.map((row) => row.department_name);
+      
+          inquirer
+            .prompt([
+              {
+                type: "input",
+                name: "first_name",
+                message: "First Name:",
+              },
+              {
+                type: "input",
+                name: "last_name",
+                message: "Last Name:",
+              },
+              {
+                type: "list", // Change the type to "list"
+                name: "department",
+                message: "Department:",
+                choices: departmentOptions, // Use the department names as choices
+              },
+              {
+                type: "input",
+                name: "salary",
+                message: "Salary:",
+              },
+              {
+                type: "input",
+                name: "manager",
+                message: "Manager:",
+              },
+            ])
+            .then((answers) => {
+              console.log("Answers:", answers);
+      
+              // * Insert the collected employee information into the database
+              // * Set a default value for the role_id column
+              const role_id = 1; // * Set the default role_id value to 1 or any other valid role_id value as per your requirements
+      
+              // * Insert the collected employee information into the database with the default role_id value
+              const query =
+                "INSERT INTO employees (first_name, last_name, role_id, department, salary, manager) VALUES (?, ?, ?, ?, ?, ?)";
+              const values = [
+                answers.first_name,
+                answers.last_name,
+                role_id, // * Use the default role_id value
+                answers.department,
+                answers.salary,
+                answers.manager,
+              ];
+              db.query(query, values, (err, res) => {
+                if (err) throw err;
+                console.log(res.affectedRows + " employee inserted!\n");
+                init();
+              });
+            })
+            .catch((error) => console.error(error));
+        });
+        break;
     case "Update Employee Manager":
       inquirer
         .prompt([
@@ -156,8 +166,8 @@ function followUpQuestions(answer) {
           db.query(query, [newJobTitle, employeeId], (err, res) => {
             if (err) throw err;
             console.log(res.affectedRows + " employee's job title updated!\n");
+            init();
           });
-          init();
         })
         .catch((error) => console.error(error));
       break;
@@ -311,15 +321,18 @@ function followUpQuestions(answer) {
 // * Creating a function that will be ran at the start of the program and everytime after the user makes a choice
 function init() {
   inquirer
-    .prompt({
-      type: "list",
-      name: "ID",
-      message: "What would you like to do: ",
-      choices: options,
+    .prompt([
+      {
+        type: "list",
+        name: "ID",
+        message: "What would you like to do?",
+        choices: options,
+      },
+    ])
+    .then((answer) => {
+      followUpQuestions(answer);
     })
-    .then((response) => {
-      followUpQuestions(response);
-    });
+    .catch((error) => console.error(error));
 }
 
 init();

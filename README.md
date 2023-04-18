@@ -1,5 +1,7 @@
 # Employee Management System
 
+![Image of program](Assets/Images/screenshot.png)
+
 ## Description
 
 This is a command-line application for managing employees in a company. It allows users to view, add, update, and delete employees, as well as manage their roles and departments. The application is built using Node.js, Express, MySQL, and the inquirer library for command-line prompts.

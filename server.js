@@ -15,14 +15,16 @@ const options = [
   "View All Employees",
   "Add Employee",
   "Delete Employee",
+  "View All Roles",
+  "Add Role",
+  "Delete Role",
+  "View All Departments",
+  "Add Department",
+  "Delete Department",
   "Update Employee Manager",
   "Update Employee Role",
   "Search Employees By Manager",
   "Search Employees By Department",
-  "Add Role",
-  "View All Roles",
-  "View All Departments",
-  "Add Department",
   "Quit",
 ];
 
@@ -299,6 +301,26 @@ async function followUpQuestions(answer) {
           });
         });
         break;
+    case "Delete Role":
+          inquirer
+            .prompt([
+              {
+                type: "input",
+                name: "role_id",
+                message: "Enter role ID:",
+              },
+            ]).then((answers) => {
+              const { role_id } = answers;
+        
+              const query = "DELETE FROM roles WHERE id = ?";
+              db.query(query, [role_id], (err, res) => {
+                if (err) throw err;
+                console.log(res.affectedRows + " role deleted\n");
+                init();
+              });
+            })
+            .catch((error) => console.error(error));
+              break;
     case "View All Departments":
       const queryDepartments = "SELECT * FROM departments";
       db.query(queryDepartments, (err, results) => {
@@ -329,6 +351,26 @@ async function followUpQuestions(answer) {
             init();
           });
         });
+        break;
+    case "Delete Department":
+      inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "department_id",
+          message: "Enter Department ID:",
+        },
+      ]).then((answers) => {
+        const { department_id } = answers;
+  
+        const query = "DELETE FROM departments WHERE id = ?";
+        db.query(query, [department_id], (err, res) => {
+          if (err) throw err;
+          console.log(res.affectedRows + " department deleted\n");
+          init();
+        });
+      })
+      .catch((error) => console.error(error));
         break;
     case "Quit":
       console.log("Quitting the application...");

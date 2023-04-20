@@ -48,7 +48,7 @@ async function followUpQuestions(answer) {
     case "View All Employees":
         // * Calling the select method so that we can  get everything inside of the employees table
       const query = "SELECT * FROM employees";
-      db.query(query, (err, results) => {
+      await db.query(query, (err, results) => {
         if (err) throw err;
 
         // Display the fetched data in the console
@@ -61,7 +61,7 @@ async function followUpQuestions(answer) {
     case "Add Employee":
         // Fetch the list of departments from the database
         const queryAdd = "SELECT department_name FROM departments";
-        db.query(queryAdd, (err, results) => {
+        await db.query(queryAdd, (err, results) => {
           if (err) throw err;
       
           // Extract the department names from the results
@@ -124,24 +124,24 @@ async function followUpQuestions(answer) {
         });
         break;
     case "Delete Employee":
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "employeeId",
-        message: "Enter employee ID:",
-      },
-    ]).then((answers) => {
-      const { employeeId } = answers;
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "employeeId",
+            message: "Enter employee ID:",
+          },
+        ]).then((answers) => {
+          const { employeeId } = answers;
 
-      const query = "DELETE FROM employees WHERE id = ?";
-      db.query(query, [employeeId], (err, res) => {
-        if (err) throw err;
-        console.log(res.affectedRows + " employee deleted\n");
-        init();
-      });
-    })
-    .catch((error) => console.error(error));
+          const query = "DELETE FROM employees WHERE id = ?";
+          db.query(query, [employeeId], (err, res) => {
+            if (err) throw err;
+            console.log(res.affectedRows + " employee deleted\n");
+            init();
+          });
+        })
+        .catch((error) => console.error(error));
       break;
     case "Update Employee Manager":
       inquirer

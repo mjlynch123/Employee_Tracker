@@ -327,7 +327,7 @@ async function followUpQuestions(answer) {
         if (err) throw err;
 
         // Display the fetched data in the console
-        console.log("Employees:");
+        console.log("Departments:");
         console.table(results);
         init();
         

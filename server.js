@@ -46,7 +46,7 @@ async function followUpQuestions(answer) {
   // * Switch statement that will determine which follow up question to ask
   switch (answer.ID) {
     case "View All Employees":
-        // * Calling the select method so that we can  get everything inside of the employees table
+      // * Calling the select method so that we can  get everything inside of the employees table
       const query = "SELECT * FROM employees";
       await db.query(query, (err, results) => {
         if (err) throw err;
@@ -59,70 +59,70 @@ async function followUpQuestions(answer) {
       });
       break;
     case "Add Employee":
-        // Fetch the list of departments from the database
-        const queryAdd = "SELECT department_name FROM departments";
-        await db.query(queryAdd, (err, results) => {
-          if (err) throw err;
-      
-          // Extract the department names from the results
-          const departmentOptions = results.map((row) => row.department_name);
-      
-          inquirer
-            .prompt([
-              {
-                type: "input",
-                name: "first_name",
-                message: "First Name:",
-              },
-              {
-                type: "input",
-                name: "last_name",
-                message: "Last Name:",
-              },
-              {
-                type: "list", // Change the type to "list"
-                name: "department",
-                message: "Department:",
-                choices: departmentOptions, // Use the department names as choices
-              },
-              {
-                type: "input",
-                name: "salary",
-                message: "Salary:",
-              },
-              {
-                type: "input",
-                name: "manager",
-                message: "Manager:",
-              },
-            ])
-            .then((answers) => {
-              console.log("Answers:", answers);
-      
-              // * Insert the collected employee information into the database
-              // * Set a default value for the role_id column
-              const role_id = 1; // * Set the default role_id value to 1 or any other valid role_id value as per your requirements
-      
-              // * Insert the collected employee information into the database with the default role_id value
-              const query =
-                "INSERT INTO employees (first_name, last_name, role_id, department, salary, manager) VALUES (?, ?, ?, ?, ?, ?)";
-              const values = [
-                answers.first_name,
-                answers.last_name,
-                role_id, // * Use the default role_id value
-                answers.department,
-                answers.salary,
-                answers.manager,
-              ];
-              db.query(query, values, (err, res) => {
-                if (err) throw err;
-                console.log(res.affectedRows + " employee inserted!\n");
-                init();
-              });
-            })
-            .catch((error) => console.error(error));
-        });
-        break;
+      // Fetch the list of departments from the database
+      const queryAdd = "SELECT department_name FROM departments";
+      await db.query(queryAdd, (err, results) => {
+        if (err) throw err;
+
+        // Extract the department names from the results
+        const departmentOptions = results.map((row) => row.department_name);
+
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              name: "first_name",
+              message: "First Name:",
+            },
+            {
+              type: "input",
+              name: "last_name",
+              message: "Last Name:",
+            },
+            {
+              type: "list", // Change the type to "list"
+              name: "department",
+              message: "Department:",
+              choices: departmentOptions, // Use the department names as choices
+            },
+            {
+              type: "input",
+              name: "salary",
+              message: "Salary:",
+            },
+            {
+              type: "input",
+              name: "manager",
+              message: "Manager:",
+            },
+          ])
+          .then((answers) => {
+            console.log("Answers:", answers);
+
+            // * Insert the collected employee information into the database
+            // * Set a default value for the role_id column
+            const role_id = 1; // * Set the default role_id value to 1 or any other valid role_id value as per your requirements
+
+            // * Insert the collected employee information into the database with the default role_id value
+            const query =
+              "INSERT INTO employees (first_name, last_name, role_id, department, salary, manager) VALUES (?, ?, ?, ?, ?, ?)";
+            const values = [
+              answers.first_name,
+              answers.last_name,
+              role_id, // * Use the default role_id value
+              answers.department,
+              answers.salary,
+              answers.manager,
+            ];
+            db.query(query, values, (err, res) => {
+              if (err) throw err;
+              console.log(res.affectedRows + " employee inserted!\n");
+              init();
+            });
+          })
+          .catch((error) => console.error(error));
+      });
+      break;
     case "Delete Employee":
       inquirer
         .prompt([
@@ -131,7 +131,8 @@ async function followUpQuestions(answer) {
             name: "employeeId",
             message: "Enter employee ID:",
           },
-        ]).then((answers) => {
+        ])
+        .then((answers) => {
           const { employeeId } = answers;
 
           const query = "DELETE FROM employees WHERE id = ?";
@@ -156,7 +157,8 @@ async function followUpQuestions(answer) {
             name: "newManager",
             message: "Enter new manager name: ",
           },
-        ]).then((answers) => {
+        ])
+        .then((answers) => {
           const { employeeId, newManager } = answers;
 
           const query = "UPDATE employees SET manager = ? WHERE id = ?";
@@ -167,7 +169,7 @@ async function followUpQuestions(answer) {
           init();
         })
         .catch((error) => console.error(error));
-        break;
+      break;
     case "Update Employee Role":
       inquirer
         .prompt([
@@ -178,31 +180,44 @@ async function followUpQuestions(answer) {
           },
           {
             type: "input",
-            name: "newJobTitle",
-            message: "Enter new job title:",
+            name: "newDepartment",
+            message: "Enter new department:",
+          },
+          {
+            type: "input",
+            name: "newRoleId",
+            message: "Enter new role ID:",
           },
         ])
         .then((answers) => {
-          const { employeeId, newJobTitle } = answers;
+          const { newDepartment, newRoleId, employeeId } = answers;
 
-          // Update the job title in the database
-          const query = "UPDATE employees SET title = ? WHERE id = ?";
-          db.query(query, [newJobTitle, employeeId], (err, res) => {
-            if (err) throw err;
-            console.log(res.affectedRows + " employee's job title updated!\n");
-            init();
-          });
+          // Update the department and role ID in the database
+          const query =
+            "UPDATE employees SET department = ?, role_id = ? WHERE id = ?";
+          db.query(
+            query,
+            [newDepartment, newRoleId, employeeId],
+            (err, res) => {
+              if (err) throw err;
+              console.log(
+                res.affectedRows +
+                  " employee's department and role ID updated!\n"
+              );
+              init();
+            }
+          );
         })
         .catch((error) => console.error(error));
       break;
     case "View All Roles":
-        db.query("SELECT * FROM roles", (err, results) => {
-            if (err) throw err;
+      db.query("SELECT * FROM roles", (err, results) => {
+        if (err) throw err;
 
-            console.table(results);
-            init();
-        })
-        break;
+        console.table(results);
+        init();
+      });
+      break;
     case "Search Employees By Manager":
       inquirer
         .prompt([
@@ -211,7 +226,8 @@ async function followUpQuestions(answer) {
             name: "manager",
             message: "Enter manager's name:",
           },
-        ]).then((answers) => {
+        ])
+        .then((answers) => {
           // * Setting answers to an object of manager
           const { manager } = answers;
 
@@ -223,7 +239,7 @@ async function followUpQuestions(answer) {
             console.log(`Employees with the manager ${manager}: `);
             console.table(results);
             init();
-          })
+          });
         })
         .catch((error) => console.error(error));
       break;
@@ -235,7 +251,8 @@ async function followUpQuestions(answer) {
             name: "department",
             message: "Enter Department: ",
           },
-        ]).then((answers) => {
+        ])
+        .then((answers) => {
           // * Setting answers to an object of department
           const { department } = answers;
 
@@ -247,8 +264,8 @@ async function followUpQuestions(answer) {
             console.log(`Employees in ${department}: `);
             console.table(results);
             init();
-          })
-        })
+          });
+        });
       break;
     case "Add Role":
       inquirer
@@ -281,7 +298,6 @@ async function followUpQuestions(answer) {
                 "Invalid department name. Please enter a valid department."
               );
               // Close the database connection
-              db.end();
               return;
             }
 
@@ -295,32 +311,32 @@ async function followUpQuestions(answer) {
               if (err) throw err;
               console.log(res.affectedRows + " role inserted!\n");
               // Close the database connection
-              db.end();
               init();
             });
           });
         });
-        break;
+      break;
     case "Delete Role":
-          inquirer
-            .prompt([
-              {
-                type: "input",
-                name: "role_id",
-                message: "Enter role ID:",
-              },
-            ]).then((answers) => {
-              const { role_id } = answers;
-        
-              const query = "DELETE FROM roles WHERE id = ?";
-              db.query(query, [role_id], (err, res) => {
-                if (err) throw err;
-                console.log(res.affectedRows + " role deleted\n");
-                init();
-              });
-            })
-            .catch((error) => console.error(error));
-              break;
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "role_id",
+            message: "Enter role ID:",
+          },
+        ])
+        .then((answers) => {
+          const { role_id } = answers;
+
+          const query = "DELETE FROM roles WHERE id = ?";
+          db.query(query, [role_id], (err, res) => {
+            if (err) throw err;
+            console.log(res.affectedRows + " role deleted\n");
+            init();
+          });
+        })
+        .catch((error) => console.error(error));
+      break;
     case "View All Departments":
       const queryDepartments = "SELECT * FROM departments";
       db.query(queryDepartments, (err, results) => {
@@ -330,7 +346,6 @@ async function followUpQuestions(answer) {
         console.log("Departments:");
         console.table(results);
         init();
-        
       });
       break;
     case "Add Department":
@@ -351,27 +366,28 @@ async function followUpQuestions(answer) {
             init();
           });
         });
-        break;
+      break;
     case "Delete Department":
       inquirer
-      .prompt([
-        {
-          type: "input",
-          name: "department_id",
-          message: "Enter Department ID:",
-        },
-      ]).then((answers) => {
-        const { department_id } = answers;
-  
-        const query = "DELETE FROM departments WHERE id = ?";
-        db.query(query, [department_id], (err, res) => {
-          if (err) throw err;
-          console.log(res.affectedRows + " department deleted\n");
-          init();
-        });
-      })
-      .catch((error) => console.error(error));
-        break;
+        .prompt([
+          {
+            type: "input",
+            name: "department_id",
+            message: "Enter Department ID:",
+          },
+        ])
+        .then((answers) => {
+          const { department_id } = answers;
+
+          const query = "DELETE FROM departments WHERE id = ?";
+          db.query(query, [department_id], (err, res) => {
+            if (err) throw err;
+            console.log(res.affectedRows + " department deleted\n");
+            init();
+          });
+        })
+        .catch((error) => console.error(error));
+      break;
     case "Quit":
       console.log("Quitting the application...");
       process.exit(0);
@@ -384,14 +400,14 @@ async function followUpQuestions(answer) {
 
 // * Creating a function that will be ran at the start of the program and everytime after the user makes a choice
 function init() {
-  fs.readFile('./ASCII/banner.txt', 'utf8', (err, data) => {
-    if(err) throw err;
+  fs.readFile("./ASCII/banner.txt", "utf8", (err, data) => {
+    if (err) throw err;
 
     // ! Adding empty strings so that the ASCII text has padding on the top and bottom
     console.log("");
     console.log(data);
     console.log("");
-  
+
     inquirer
       .prompt({
         type: "list",
